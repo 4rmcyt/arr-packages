@@ -62,6 +62,7 @@ in
         -e 's#System.Configuration.ConfigurationManager" Version="6.0.1"#System.Configuration.ConfigurationManager" Version="8.0.1"#' \
         -e 's#System.Text.Json" Version="6.0.10"#System.Text.Json" Version="8.0.5"#' \
         -e 's#Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="6.0.21"#Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="8.0.12"#' \
+        -e 's#System.ServiceProcess.ServiceController" Version="6.0.1"#System.ServiceProcess.ServiceController" Version="8.0.1"#' \
         {} +
       # Upstream drops this package entirely in the net8 migration (superseded
       # by ASP.NET Core's own net8 middleware); its 6.0.21 build doesn't
