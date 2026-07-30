@@ -16,7 +16,7 @@ sonarr.overrideAttrs (old: rec {
       owner = "Sonarr";
       repo = "Sonarr";
       tag = "v${version}";
-      hash = lib.fakeHash;
+      hash = "sha256-hYO7I1zaBSYgobd8GvIx/sWyRzflXMFjnnPB21pm4wQ=";
     };
     # Keep upstream nixpkgs' postPatch/patches only if they still apply at
     # this version (dotnet8-compat patches only target `version < 5.0`).

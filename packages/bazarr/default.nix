@@ -1,15 +1,25 @@
 {
   bazarr,
-  fetchzip,
+  fetchFromGitHub,
+  fetchNpmDeps,
   lib,
 }:
 bazarr.overrideAttrs (_old: rec {
-  # Bump this to the upstream release tag, get the hash with:
-  #   nix-prefetch-url --unpack https://github.com/morpheus65535/bazarr/releases/download/v${version}/bazarr.zip
+  # Bump this to the upstream tag you want to track, then run:
+  #   nix build .#packages.x86_64-linux.bazarr  (fails once for src, once for npmDeps)
   version = "1.6.0";
 
-  src = fetchzip {
-    url = "https://github.com/morpheus65535/bazarr/releases/download/v${version}/bazarr.zip";
+  src = fetchFromGitHub {
+    owner = "morpheus65535";
+    repo = "bazarr";
+    tag = "v${version}";
+    hash = lib.fakeHash;
+  };
+
+  npmDeps = fetchNpmDeps {
+    name = "bazarr-${version}-npm-deps";
+    inherit src;
+    sourceRoot = "${src.name}/frontend";
     hash = lib.fakeHash;
   };
 })

@@ -16,7 +16,7 @@ prowlarr.overrideAttrs (old: rec {
       owner = "Prowlarr";
       repo = "Prowlarr";
       tag = "v${version}";
-      hash = lib.fakeHash;
+      hash = "sha256-Q99GbNiMeofccrxfrLPlzns0u3Fy7qFobwPgHNnvG7Q=";
     };
     inherit (old.src) postPatch patches;
   };

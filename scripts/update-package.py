@@ -17,7 +17,7 @@ PACKAGES = {
     "sonarr": {"owner": "Sonarr", "repo": "Sonarr", "kind": "dotnet-yarn", "deps": "deps.json"},
     "radarr": {"owner": "Radarr", "repo": "Radarr", "kind": "dotnet-yarn", "deps": "deps.json"},
     "prowlarr": {"owner": "Prowlarr", "repo": "Prowlarr", "kind": "dotnet-yarn", "deps": "deps.json"},
-    "bazarr": {"owner": "morpheus65535", "repo": "bazarr", "kind": "zip"},
+    "bazarr": {"owner": "morpheus65535", "repo": "bazarr", "kind": "npm-block"},
     "jellyfin-web": {"owner": "jellyfin", "repo": "jellyfin-web", "kind": "npm", "version_from": "jellyfin/jellyfin"},
     "jellyfin": {"owner": "jellyfin", "repo": "jellyfin", "kind": "dotnet-nuget-only", "deps": "nuget-deps.json"},
 }
@@ -67,15 +67,6 @@ def prefetch_github_hash(owner: str, repo: str, version: str) -> str:
     return json.loads(out)["hash"]
 
 
-def prefetch_file_hash(url: str, unpack: bool = False) -> str:
-    cmd = ["nix", "store", "prefetch-file", "--json", "--hash-type", "sha256"]
-    if unpack:
-        cmd.append("--unpack")
-    cmd.append(url)
-    out = run(cmd).stdout
-    return json.loads(out)["hash"]
-
-
 def fake_then_build_hash(attr: str) -> str:
     """Build the flake attr expecting it to fail on a fakeHash FOD; parse the real hash."""
     proc = subprocess.run(
@@ -117,13 +108,8 @@ def main():
     print(f"{name}: {current} -> {latest}")
     text = set_version(text, latest)
 
-    src_hash = prefetch_github_hash(cfg["owner"], cfg["repo"], latest) if cfg["kind"] != "zip" else None
-    if cfg["kind"] == "zip":
-        url = f"https://github.com/{cfg['owner']}/{cfg['repo']}/releases/download/v{latest}/bazarr.zip"
-        new_hash = prefetch_file_hash(url, unpack=True)
-        text = set_hash_in_block(text, "fetchzip", new_hash)
-    else:
-        text = set_hash_in_block(text, "fetchFromGitHub", src_hash)
+    src_hash = prefetch_github_hash(cfg["owner"], cfg["repo"], latest)
+    text = set_hash_in_block(text, "fetchFromGitHub", src_hash)
 
     pkg_file.write_text(text)
 
@@ -147,6 +133,15 @@ def main():
         real = fake_then_build_hash(name)
         text = pkg_file.read_text()
         text = set_bare_hash(text, "npmDepsHash", real)
+        pkg_file.write_text(text)
+
+    elif cfg["kind"] == "npm-block":
+        text = pkg_file.read_text()
+        text = set_hash_in_block(text, "fetchNpmDeps", "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
+        pkg_file.write_text(text)
+        real = fake_then_build_hash(name)
+        text = pkg_file.read_text()
+        text = set_hash_in_block(text, "fetchNpmDeps", real)
         pkg_file.write_text(text)
 
     print("CHANGED")

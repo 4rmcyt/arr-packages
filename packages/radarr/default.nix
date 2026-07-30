@@ -16,7 +16,7 @@ radarr.overrideAttrs (old: rec {
       owner = "Radarr";
       repo = "Radarr";
       tag = "v${version}";
-      hash = lib.fakeHash;
+      hash = "sha256-1CAcsqhdAH2dOcOMVyIlaqEmCKDwXNUJf3SuVuJEZ7E=";
     };
     # Keep upstream nixpkgs' postPatch/patches only if they still apply at
     # this version (dotnet8-compat patches only target `version < 6.0`).

@@ -11,7 +11,7 @@ jellyfin-web.overrideAttrs (_old: rec {
     owner = "jellyfin";
     repo = "jellyfin-web";
     tag = "v${version}";
-    hash = lib.fakeHash;
+    hash = "sha256-3Gyg0eSbOXO0wgdgzuOtD8nDmSM37z7Bc0fKcbo9ffA=";
   };
 
   # Regenerate with the standard fakeHash-then-copy-from-error trick
