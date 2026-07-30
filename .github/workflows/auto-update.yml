@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   update:
@@ -45,6 +46,7 @@ jobs:
           exit $failed
 
       - name: Commit and push if anything changed
+        id: commit
         if: always()
         run: |
           git config user.name "arr-packages-bot"
@@ -53,6 +55,15 @@ jobs:
             git add packages
             git commit -m "chore: bump package version(s) to latest upstream release"
             git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "nothing changed"
           fi
+
+      # A push made with GITHUB_TOKEN doesn't trigger build.yml's `on: push`
+      # (GitHub's anti-recursion rule) -- kick it off explicitly instead.
+      - name: Trigger build workflow
+        if: always() && steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run build.yml --ref main
