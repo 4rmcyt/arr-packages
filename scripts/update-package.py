@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Bump one package to its latest upstream release and refresh all hashes.
 
-Usage: scripts/update-package.py <sonarr|radarr|prowlarr|bazarr|jellyfin|jellyfin-web>
+Usage: scripts/update-package.py <sonarr|radarr|prowlarr|bazarr|jellyfin|jellyfin-web> [--force-deps]
+
+--force-deps regenerates yarn/npm/nuget deps for the currently pinned version
+without checking for a new upstream release first.
 
 Run from the repo root. Requires `gh`, `nix` (with flakes) on PATH and
 GH_TOKEN in the environment. Exits 0 with no changes if already current,
@@ -80,30 +83,37 @@ def run_fetch_deps(attr: str, deps_path: Path):
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in PACKAGES:
-        raise SystemExit(f"usage: {sys.argv[0]} <{'|'.join(PACKAGES)}>")
+    args = [a for a in sys.argv[1:] if a != "--force-deps"]
+    force_deps = len(args) != len(sys.argv) - 1
+    if len(args) != 1 or args[0] not in PACKAGES:
+        raise SystemExit(f"usage: {sys.argv[0]} <{'|'.join(PACKAGES)}> [--force-deps]")
 
-    name = sys.argv[1]
+    name = args[0]
     cfg = PACKAGES[name]
     pkg_dir = Path("packages") / name
     pkg_file = pkg_dir / "default.nix"
     text = pkg_file.read_text()
     current = pinned_version(text)
 
-    version_source = cfg.get("version_from", f"{cfg['owner']}/{cfg['repo']}")
-    latest = latest_release_tag(version_source)
+    if force_deps:
+        # Regenerate deps for the currently pinned version without bumping
+        # anything -- e.g. after fixing how a package consumes nugetDeps/npmDeps.
+        print(f"{name}: regenerating deps for pinned version {current} (--force-deps)")
+    else:
+        version_source = cfg.get("version_from", f"{cfg['owner']}/{cfg['repo']}")
+        latest = latest_release_tag(version_source)
 
-    if latest == current:
-        print(f"{name}: up to date ({current})")
-        return
+        if latest == current:
+            print(f"{name}: up to date ({current})")
+            return
 
-    print(f"{name}: {current} -> {latest}")
-    text = set_version(text, latest)
+        print(f"{name}: {current} -> {latest}")
+        text = set_version(text, latest)
 
-    src_hash = prefetch_github_hash(cfg["owner"], cfg["repo"], latest)
-    text = set_hash_in_block(text, "fetchFromGitHub", src_hash)
+        src_hash = prefetch_github_hash(cfg["owner"], cfg["repo"], latest)
+        text = set_hash_in_block(text, "fetchFromGitHub", src_hash)
 
-    pkg_file.write_text(text)
+        pkg_file.write_text(text)
 
     if cfg["kind"] == "dotnet-yarn":
         text = pkg_file.read_text()

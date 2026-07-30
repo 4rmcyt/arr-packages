@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "0 6 * * *"
   workflow_dispatch:
+    inputs:
+      force_deps:
+        description: "Regenerate deps for the currently pinned version, without checking for a new release"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -30,7 +35,7 @@ jobs:
         run: |
           # jellyfin-web must go first: jellyfin's version is pinned to match it.
           for pkg in jellyfin-web jellyfin sonarr radarr prowlarr bazarr; do
-            python3 scripts/update-package.py "$pkg"
+            python3 scripts/update-package.py "$pkg" ${{ inputs.force_deps && '--force-deps' || '' }}
           done
 
       - name: Commit and push if anything changed
