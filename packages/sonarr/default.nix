@@ -92,6 +92,11 @@ in
       "--property:AssemblyVersion=${version}"
       "--property:AssemblyConfiguration=main"
       "--property:RuntimeIdentifier=${rid}"
+      # Upstream's own Directory.Build.props escalates NU1605 (package
+      # downgrade) to a hard error; nixpkgs' now-dropped dotnet8-compat
+      # patches used to also pin these transitive versions to avoid it.
+      # Just let restore pick the higher version instead of failing.
+      "--property:NoWarn=NU1605"
     ];
 
     meta = {

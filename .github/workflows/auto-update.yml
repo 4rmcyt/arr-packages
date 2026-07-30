@@ -34,11 +34,18 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # jellyfin-web must go first: jellyfin's version is pinned to match it.
+          # One package failing must not lose the others' already-written changes.
+          failed=0
           for pkg in jellyfin-web jellyfin sonarr radarr prowlarr bazarr; do
-            python3 scripts/update-package.py "$pkg" ${{ inputs.force_deps && '--force-deps' || '' }}
+            if ! python3 scripts/update-package.py "$pkg" ${{ inputs.force_deps && '--force-deps' || '' }}; then
+              echo "::warning::$pkg update failed, continuing with the rest"
+              failed=1
+            fi
           done
+          exit $failed
 
       - name: Commit and push if anything changed
+        if: always()
         run: |
           git config user.name "arr-packages-bot"
           git config user.email "actions@users.noreply.github.com"
