@@ -41,6 +41,11 @@ in
       # global.json pins an SDK version older than what's installed; let
       # dotnet fall back to whatever SDK we actually have.
       rm -f global.json
+      # These class libraries still declare only net6.0; the --property:TargetFramework=net8.0
+      # override below can't add a framework that isn't in a project's own
+      # <TargetFrameworks> list, so the library projects must say so themselves.
+      find src -name '*.csproj' -exec \
+        sed -i 's#<TargetFrameworks>net6.0</TargetFrameworks>#<TargetFrameworks>net8.0</TargetFrameworks>#' {} +
     '';
 
     yarnOfflineCache = fetchYarnDeps {
