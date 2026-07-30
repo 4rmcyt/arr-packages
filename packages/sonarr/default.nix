@@ -98,14 +98,17 @@ in
       "--property:AssemblyConfiguration=main"
       "--property:RuntimeIdentifier=${rid}"
       # NuGet's own restore-time downgrade check (NU1605) is promoted to an
-      # error independently of the general TreatWarningsAsErrors switch --
+      # error independently of Directory.Build.props' TreatWarningsAsErrors --
       # the now-dropped dotnet8-compat patches used to pin these transitive
       # versions to avoid it. NoWarn only accepts one code here: a value with
       # multiple ';'-separated codes gets mangled somewhere in the flags
       # plumbing (confirmed: "NU1605;CS1591" -> MSBuild saw "CS1591" as its
-      # own switch). CS1591 (missing XML doc) is handled separately below.
+      # own switch). CS1591 is already suppressed in Directory.Build.props.
       "--property:NoWarn=NU1605"
-      "--property:GenerateDocumentationFile=false"
+      # Directory.Build.props sets TreatWarningsAsErrors=true, which also
+      # escalates SYSLIB0051 (obsolete-API warning, DestinationAlreadyExistsException's
+      # serialization constructor) at net8.0. Turn the blanket escalation off.
+      "--property:TreatWarningsAsErrors=false"
     ];
 
     meta = {
