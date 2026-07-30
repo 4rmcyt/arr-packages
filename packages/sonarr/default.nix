@@ -18,10 +18,12 @@ sonarr.overrideAttrs (old: rec {
       tag = "v${version}";
       hash = "sha256-hYO7I1zaBSYgobd8GvIx/sWyRzflXMFjnnPB21pm4wQ=";
     };
-    inherit (old.src) postPatch;
     # nixpkgs' dotnet8-compatibility patches (targeting version < 5.0) no
-    # longer apply cleanly at 4.0.19 -- Sonarr.Core.csproj/Sonarr.Host.csproj
-    # already carry the .NET 8 changes upstream. Drop them.
+    # longer apply cleanly at 4.0.19 -- two csproj hunks reject. Dropping the
+    # patches also drops their global.json SDK-version bump though, so
+    # dotnetConfigureHook then demands the now-uninstalled SDK 6.0.405.
+    # Just delete global.json instead so it picks whatever SDK is installed.
+    postPatch = old.src.postPatch + "\nrm -f global.json\n";
     patches = [];
   };
 
