@@ -97,11 +97,13 @@ in
       "--property:AssemblyVersion=${version}"
       "--property:AssemblyConfiguration=main"
       "--property:RuntimeIdentifier=${rid}"
-      # Upstream's own Directory.Build.props treats warnings as errors and
-      # escalates NU1605 (package downgrade). The now-dropped dotnet8-compat
-      # patches used to also silence these for the net8.0 build; do the same
-      # directly instead of reconstructing that patch file-by-file.
-      "--property:NoWarn=NU1605;CS1591;SYSLIB0051"
+      # Upstream's own Directory.Build.props treats warnings as errors (NU1605
+      # package downgrade, CS1591 missing XML doc comments, obsolete-API
+      # warnings...). The now-dropped dotnet8-compat patches used to also
+      # silence these for the net8.0 build; a bare NoWarn value containing
+      # ';' gets mangled somewhere in the flags plumbing, so just turn the
+      # whole escalation off instead.
+      "--property:TreatWarningsAsErrors=false"
       "--property:GenerateDocumentationFile=false"
     ];
 
