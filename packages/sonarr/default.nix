@@ -27,7 +27,7 @@ sonarr.overrideAttrs (old: rec {
 
   yarnOfflineCache = fetchYarnDeps {
     yarnLock = "${src}/yarn.lock";
-    hash = lib.fakeHash;
+    hash = "sha256-ejAf8/zWX9TbC645vbpyLwa6mrnitU7ByImrJ1d/uX0=";
   };
 
   nugetDeps = ./deps.json;
