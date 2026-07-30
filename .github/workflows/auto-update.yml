@@ -1,0 +1,46 @@
+name: auto-update
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - uses: cachix/cachix-action@v15
+        with:
+          name: arr-packages
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+
+      - name: Bump every package to its latest upstream release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # jellyfin-web must go first: jellyfin's version is pinned to match it.
+          for pkg in jellyfin-web jellyfin sonarr radarr prowlarr bazarr; do
+            python3 scripts/update-package.py "$pkg"
+          done
+
+      - name: Commit and push if anything changed
+        run: |
+          git config user.name "arr-packages-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if ! git diff --quiet -- packages; then
+            git add packages
+            git commit -m "chore: bump package version(s) to latest upstream release"
+            git push
+          else
+            echo "nothing changed"
+          fi
