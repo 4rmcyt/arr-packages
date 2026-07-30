@@ -18,9 +18,11 @@ sonarr.overrideAttrs (old: rec {
       tag = "v${version}";
       hash = "sha256-hYO7I1zaBSYgobd8GvIx/sWyRzflXMFjnnPB21pm4wQ=";
     };
-    # Keep upstream nixpkgs' postPatch/patches only if they still apply at
-    # this version (dotnet8-compat patches only target `version < 5.0`).
-    inherit (old.src) postPatch patches;
+    inherit (old.src) postPatch;
+    # nixpkgs' dotnet8-compatibility patches (targeting version < 5.0) no
+    # longer apply cleanly at 4.0.19 -- Sonarr.Core.csproj/Sonarr.Host.csproj
+    # already carry the .NET 8 changes upstream. Drop them.
+    patches = [];
   };
 
   yarnOfflineCache = fetchYarnDeps {

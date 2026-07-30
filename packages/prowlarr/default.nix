@@ -23,7 +23,7 @@ prowlarr.overrideAttrs (old: rec {
 
   yarnOfflineCache = fetchYarnDeps {
     yarnLock = "${src}/yarn.lock";
-    hash = lib.fakeHash;
+    hash = "sha256-PZw+Q7CcHkbb2bhZKSPE0kvPIhWxWQIqr7/UZlPdqtY=";
   };
 
   nugetDeps = ./deps.json;

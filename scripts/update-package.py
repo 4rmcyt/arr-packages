@@ -18,7 +18,7 @@ PACKAGES = {
     "radarr": {"owner": "Radarr", "repo": "Radarr", "kind": "dotnet-yarn", "deps": "deps.json"},
     "prowlarr": {"owner": "Prowlarr", "repo": "Prowlarr", "kind": "dotnet-yarn", "deps": "deps.json"},
     "bazarr": {"owner": "morpheus65535", "repo": "bazarr", "kind": "npm-block"},
-    "jellyfin-web": {"owner": "jellyfin", "repo": "jellyfin-web", "kind": "npm", "version_from": "jellyfin/jellyfin"},
+    "jellyfin-web": {"owner": "jellyfin", "repo": "jellyfin-web", "kind": "npm-block", "version_from": "jellyfin/jellyfin"},
     "jellyfin": {"owner": "jellyfin", "repo": "jellyfin", "kind": "dotnet-nuget-only", "deps": "nuget-deps.json"},
 }
 
@@ -51,14 +51,6 @@ def set_hash_in_block(text: str, block_marker: str, new_hash: str) -> str:
     new_text, n = pattern.subn(rf'\g<1>"{new_hash}"\g<3>', text, count=1)
     if n != 1:
         raise SystemExit(f"expected exactly one {block_marker!r} hash to replace, matched {n}")
-    return new_text
-
-
-def set_bare_hash(text: str, field: str, new_hash: str) -> str:
-    pattern = re.compile(rf'({field} = )("[^"]*"|lib\.fakeHash)(;)')
-    new_text, n = pattern.subn(rf'\g<1>"{new_hash}"\g<3>', text, count=1)
-    if n != 1:
-        raise SystemExit(f"expected exactly one {field!r} to replace, matched {n}")
     return new_text
 
 
@@ -125,15 +117,6 @@ def main():
 
     elif cfg["kind"] == "dotnet-nuget-only":
         run_fetch_deps(name, pkg_dir / cfg["deps"])
-
-    elif cfg["kind"] == "npm":
-        text = pkg_file.read_text()
-        text = set_bare_hash(text, "npmDepsHash", "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
-        pkg_file.write_text(text)
-        real = fake_then_build_hash(name)
-        text = pkg_file.read_text()
-        text = set_bare_hash(text, "npmDepsHash", real)
-        pkg_file.write_text(text)
 
     elif cfg["kind"] == "npm-block":
         text = pkg_file.read_text()

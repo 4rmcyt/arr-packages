@@ -13,7 +13,7 @@ jellyfin.overrideAttrs (_old: rec {
     owner = "jellyfin";
     repo = "jellyfin";
     tag = "v${version}";
-    hash = lib.fakeHash;
+    hash = "sha256-HCs4ZsutVoVH+bBZANjpPeMyV8e63Yemjg9DSr0R9zg=";
   };
 
   # Bump this to the upstream tag you want to track, then run:

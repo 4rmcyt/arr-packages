@@ -25,7 +25,7 @@ radarr.overrideAttrs (old: rec {
 
   yarnOfflineCache = fetchYarnDeps {
     yarnLock = "${src}/yarn.lock";
-    hash = lib.fakeHash;
+    hash = "sha256-FrYvTYSxUDP68a4n0isEaHxRNFL25N3LNQJVFBOLdyE=";
   };
 
   nugetDeps = ./deps.json;

@@ -1,6 +1,7 @@
 {
   jellyfin-web,
   fetchFromGitHub,
+  fetchNpmDeps,
   lib,
 }:
 jellyfin-web.overrideAttrs (_old: rec {
@@ -14,7 +15,11 @@ jellyfin-web.overrideAttrs (_old: rec {
     hash = "sha256-3Gyg0eSbOXO0wgdgzuOtD8nDmSM37z7Bc0fKcbo9ffA=";
   };
 
-  # Regenerate with the standard fakeHash-then-copy-from-error trick
-  # (single FOD, no fetch-deps step needed here).
-  npmDepsHash = lib.fakeHash;
+  # `npmDepsHash` only takes effect inside nixpkgs' own buildNpmPackage call --
+  # overrideAttrs can't reach it. Override the actual `npmDeps` fetcher output
+  # instead, same as packages/bazarr.
+  npmDeps = fetchNpmDeps {
+    inherit src;
+    hash = lib.fakeHash;
+  };
 })

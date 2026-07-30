@@ -13,7 +13,7 @@ bazarr.overrideAttrs (_old: rec {
     owner = "morpheus65535";
     repo = "bazarr";
     tag = "v${version}";
-    hash = lib.fakeHash;
+    hash = "sha256-r3H0JEcGYzQOTHVR/zONmtOIF+LnJd+qn2pcAj8vdOA=";
   };
 
   npmDeps = fetchNpmDeps {
