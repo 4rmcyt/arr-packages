@@ -26,12 +26,14 @@ PACKAGES = {
 }
 
 
-def run(cmd, **kw):
-    return subprocess.run(cmd, check=True, text=True, capture_output=True, **kw)
+def run(cmd, capture=False, **kw):
+    """Run a command. By default output streams straight to the log so
+    failures are actually visible; pass capture=True to read .stdout instead."""
+    return subprocess.run(cmd, check=True, text=True, capture_output=capture, **kw)
 
 
 def latest_release_tag(owner_repo: str) -> str:
-    out = run(["gh", "api", f"repos/{owner_repo}/releases/latest", "--jq", ".tag_name"]).stdout.strip()
+    out = run(["gh", "api", f"repos/{owner_repo}/releases/latest", "--jq", ".tag_name"], capture=True).stdout.strip()
     return out.lstrip("v")
 
 
@@ -58,7 +60,7 @@ def set_hash_in_block(text: str, block_marker: str, new_hash: str) -> str:
 
 
 def prefetch_github_hash(owner: str, repo: str, version: str) -> str:
-    out = run(["nix", "flake", "prefetch", "--json", f"github:{owner}/{repo}/v{version}"]).stdout
+    out = run(["nix", "flake", "prefetch", "--json", f"github:{owner}/{repo}/v{version}"], capture=True).stdout
     return json.loads(out)["hash"]
 
 
