@@ -46,6 +46,28 @@ in
       # <TargetFrameworks> list, so the library projects must say so themselves.
       find src -name '*.csproj' -exec \
         sed -i 's#<TargetFrameworks>net6.0</TargetFrameworks>#<TargetFrameworks>net8.0</TargetFrameworks>#' {} +
+
+      # Upstream's real .NET 8 migration (Sonarr/Sonarr@518f1799) also bumps
+      # these specific PackageReferences so the Microsoft.Extensions.* family
+      # resolves to matching net8-era versions instead of colliding with
+      # NLog.Extensions.Logging's own net8 dependency chain (CS1705 assembly
+      # version conflict). Applying the upstream patch verbatim fails (2 of
+      # its csproj hunks reject against 4.0.19's already-drifted content), so
+      # these are just the version-bump lines re-applied directly.
+      find src -name '*.csproj' -exec sed -i \
+        -e 's#Microsoft.Extensions.DependencyInjection" Version="6.0.1"#Microsoft.Extensions.DependencyInjection" Version="8.0.1"#' \
+        -e 's#Microsoft.Extensions.Logging" Version="6.0.0"#Microsoft.Extensions.Logging" Version="8.0.1"#' \
+        -e 's#Microsoft.Extensions.Configuration" Version="6.0.1"#Microsoft.Extensions.Configuration" Version="8.0.0"#' \
+        -e 's#Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.2"#Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.1"#' \
+        -e 's#System.Configuration.ConfigurationManager" Version="6.0.1"#System.Configuration.ConfigurationManager" Version="8.0.1"#' \
+        -e 's#System.Text.Json" Version="6.0.10"#System.Text.Json" Version="8.0.5"#' \
+        -e 's#Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="6.0.21"#Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="8.0.12"#' \
+        {} +
+      # Upstream drops this package entirely in the net8 migration (superseded
+      # by ASP.NET Core's own net8 middleware); its 6.0.21 build doesn't
+      # resolve cleanly against the rest of the net8 graph.
+      sed -i '/<PackageReference Include="Microsoft.AspNetCore.Owin" Version="6.0.21" \/>/d' \
+        src/NzbDrone.Host/Sonarr.Host.csproj
     '';
 
     yarnOfflineCache = fetchYarnDeps {
