@@ -69,6 +69,16 @@ in
       # resolve cleanly against the rest of the net8 graph.
       sed -i '/<PackageReference Include="Microsoft.AspNetCore.Owin" Version="6.0.21" \/>/d' \
         src/NzbDrone.Host/Sonarr.Host.csproj
+
+      # Upstream bug: GET /api/v3/queue without explicit seriesIds/languages/
+      # quality/status query params 500s, since `x?.ToHashSet()` on a null
+      # array param stays null (not an empty set), and the private overload
+      # immediately calls `.Any()` on it. Breaks the Queue page in the web UI
+      # whenever it's loaded with no filters set. Not reported upstream yet.
+      substituteInPlace src/Sonarr.Api.V3/Queue/QueueController.cs \
+        --replace-fail \
+        'GetQueue(spec, seriesIds?.ToHashSet(), protocol, languages?.ToHashSet(), quality?.ToHashSet(), status?.ToHashSet(), includeUnknownSeriesItems)' \
+        'GetQueue(spec, seriesIds?.ToHashSet() ?? new HashSet<int>(), protocol, languages?.ToHashSet() ?? new HashSet<int>(), quality?.ToHashSet() ?? new HashSet<int>(), status?.ToHashSet() ?? new HashSet<QueueStatus>(), includeUnknownSeriesItems)'
     '';
 
     yarnOfflineCache = fetchYarnDeps {
