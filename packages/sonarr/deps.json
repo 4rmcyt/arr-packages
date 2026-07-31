@@ -898,11 +898,6 @@
   },
   {
     "pname": "System.Diagnostics.EventLog",
-    "version": "6.0.0",
-    "hash": "sha256-zUXIQtAFKbiUMKCrXzO4mOTD5EUphZzghBYKXprowSM="
-  },
-  {
-    "pname": "System.Diagnostics.EventLog",
     "version": "8.0.1",
     "hash": "sha256-zvqd72pwgcGoa1nH3ZT1C0mP9k53vFLJ69r5MCQ1saA="
   },
@@ -1205,11 +1200,6 @@
     "pname": "System.Security.Principal.Windows",
     "version": "6.0.0-preview.5.21301.5",
     "hash": "sha256-p0ROK7zJPz4EmNdjgAz2eX8dOMVHhpvQLTU7JveMceA="
-  },
-  {
-    "pname": "System.ServiceProcess.ServiceController",
-    "version": "6.0.1",
-    "hash": "sha256-ZYf+7ln6IlrSZHnoFvZyootRMsLqcUaZduJnh6mz25Y="
   },
   {
     "pname": "System.ServiceProcess.ServiceController",
