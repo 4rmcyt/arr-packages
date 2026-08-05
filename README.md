@@ -15,21 +15,21 @@ nixpkgs, while reusing nixpkgs' own build recipes (`buildDotnetModule`,
 
 ## Packages
 
-| Package        | Kind                          | Notes                                                   |
-| -------------- | ------------------------------ | -------------------------------------------------------- |
-| `sonarr`       | `buildDotnetModule`            | Needs manual `net8.0`/package-version patches per bump (see comments in `packages/sonarr/default.nix`) |
-| `radarr`       | `buildDotnetModule`            |                                                            |
-| `prowlarr`     | `buildDotnetModule`            |                                                            |
-| `bazarr`       | `stdenv.mkDerivation` + `fetchNpmDeps` |                                                   |
-| `jellyfin`     | `buildDotnetModule`            | Version must always match `jellyfin-web`                 |
-| `jellyfin-web` | `buildNpmPackage`              | Version must always match `jellyfin`                     |
+| Package        | Kind                                   | Notes                                                                                                  |
+| -------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `sonarr`       | `buildDotnetModule`                    | Needs manual `net8.0`/package-version patches per bump (see comments in `packages/sonarr/default.nix`) |
+| `radarr`       | `buildDotnetModule`                    |                                                                                                        |
+| `prowlarr`     | `buildDotnetModule`                    |                                                                                                        |
+| `bazarr`       | `stdenv.mkDerivation` + `fetchNpmDeps` |                                                                                                        |
+| `jellyfin`     | `buildDotnetModule`                    | Version must always match `jellyfin-web`                                                               |
+| `jellyfin-web` | `buildNpmPackage`                      | Version must always match `jellyfin`                                                                   |
 
 Each package overrides only `version`/`src`/deps compared to nixpkgs' own
 derivation — **not** `<pkg>.overrideAttrs`. `overrideAttrs` can't reach
 `nugetDeps`/`npmDeps` for these build helpers (they're consumed inside the
 original `buildDotnetModule`/`buildNpmPackage` call, before `overrideAttrs`
 ever runs), so bumping a version that way silently keeps building against the
-*old* dependency graph. These packages call `buildDotnetModule`/
+_old_ dependency graph. These packages call `buildDotnetModule`/
 `buildNpmPackage` directly instead.
 
 ## Updating

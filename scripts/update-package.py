@@ -10,6 +10,7 @@ Run from the repo root. Requires `gh`, `nix` (with flakes) on PATH and
 GH_TOKEN in the environment. Exits 0 with no changes if already current,
 prints "CHANGED" to stdout if the package file was modified.
 """
+
 import json
 import re
 import subprocess
@@ -17,12 +18,37 @@ import sys
 from pathlib import Path
 
 PACKAGES = {
-    "sonarr": {"owner": "Sonarr", "repo": "Sonarr", "kind": "dotnet-yarn", "deps": "deps.json"},
-    "radarr": {"owner": "Radarr", "repo": "Radarr", "kind": "dotnet-yarn", "deps": "deps.json"},
-    "prowlarr": {"owner": "Prowlarr", "repo": "Prowlarr", "kind": "dotnet-yarn", "deps": "deps.json"},
+    "sonarr": {
+        "owner": "Sonarr",
+        "repo": "Sonarr",
+        "kind": "dotnet-yarn",
+        "deps": "deps.json",
+    },
+    "radarr": {
+        "owner": "Radarr",
+        "repo": "Radarr",
+        "kind": "dotnet-yarn",
+        "deps": "deps.json",
+    },
+    "prowlarr": {
+        "owner": "Prowlarr",
+        "repo": "Prowlarr",
+        "kind": "dotnet-yarn",
+        "deps": "deps.json",
+    },
     "bazarr": {"owner": "morpheus65535", "repo": "bazarr", "kind": "npm-block"},
-    "jellyfin-web": {"owner": "jellyfin", "repo": "jellyfin-web", "kind": "npm-block", "version_from": "jellyfin/jellyfin"},
-    "jellyfin": {"owner": "jellyfin", "repo": "jellyfin", "kind": "dotnet-nuget-only", "deps": "nuget-deps.json"},
+    "jellyfin-web": {
+        "owner": "jellyfin",
+        "repo": "jellyfin-web",
+        "kind": "npm-block",
+        "version_from": "jellyfin/jellyfin",
+    },
+    "jellyfin": {
+        "owner": "jellyfin",
+        "repo": "jellyfin",
+        "kind": "dotnet-nuget-only",
+        "deps": "nuget-deps.json",
+    },
 }
 
 
@@ -33,14 +59,17 @@ def run(cmd, capture=False, **kw):
 
 
 def latest_release_tag(owner_repo: str) -> str:
-    out = run(["gh", "api", f"repos/{owner_repo}/releases/latest", "--jq", ".tag_name"], capture=True).stdout.strip()
+    out = run(
+        ["gh", "api", f"repos/{owner_repo}/releases/latest", "--jq", ".tag_name"],
+        capture=True,
+    ).stdout.strip()
     return out.lstrip("v")
 
 
 def pinned_version(text: str) -> str:
     m = re.search(r'version = "([^"]+)";', text)
     if not m:
-        raise SystemExit("could not find `version = \"...\";` in package file")
+        raise SystemExit('could not find `version = "...";` in package file')
     return m.group(1)
 
 
@@ -55,12 +84,17 @@ def set_hash_in_block(text: str, block_marker: str, new_hash: str) -> str:
     )
     new_text, n = pattern.subn(rf'\g<1>"{new_hash}"\g<3>', text, count=1)
     if n != 1:
-        raise SystemExit(f"expected exactly one {block_marker!r} hash to replace, matched {n}")
+        raise SystemExit(
+            f"expected exactly one {block_marker!r} hash to replace, matched {n}"
+        )
     return new_text
 
 
 def prefetch_github_hash(owner: str, repo: str, version: str) -> str:
-    out = run(["nix", "flake", "prefetch", "--json", f"github:{owner}/{repo}/v{version}"], capture=True).stdout
+    out = run(
+        ["nix", "flake", "prefetch", "--json", f"github:{owner}/{repo}/v{version}"],
+        capture=True,
+    ).stdout
     return json.loads(out)["hash"]
 
 
@@ -74,12 +108,22 @@ def fake_then_build_hash(attr: str) -> str:
     combined = proc.stdout + proc.stderr
     m = re.search(r"got:\s+(sha256-\S+)", combined)
     if not m:
-        raise SystemExit(f"could not find a 'got: sha256-...' hash in build output for {attr}:\n{combined[-4000:]}")
+        raise SystemExit(
+            f"could not find a 'got: sha256-...' hash in build output for {attr}:\n{combined[-4000:]}"
+        )
     return m.group(1)
 
 
 def run_fetch_deps(attr: str, deps_path: Path):
-    run(["nix", "build", f".#packages.x86_64-linux.{attr}.fetch-deps", "-o", "fetch-deps-result"])
+    run(
+        [
+            "nix",
+            "build",
+            f".#packages.x86_64-linux.{attr}.fetch-deps",
+            "-o",
+            "fetch-deps-result",
+        ]
+    )
     run(["./fetch-deps-result", str(deps_path)])
     Path("fetch-deps-result").unlink(missing_ok=True)
 
@@ -119,7 +163,9 @@ def main():
 
     if cfg["kind"] == "dotnet-yarn":
         text = pkg_file.read_text()
-        text = set_hash_in_block(text, "fetchYarnDeps", "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
+        text = set_hash_in_block(
+            text, "fetchYarnDeps", "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+        )
         pkg_file.write_text(text)
         real = fake_then_build_hash(name)
         text = pkg_file.read_text()
@@ -132,7 +178,9 @@ def main():
 
     elif cfg["kind"] == "npm-block":
         text = pkg_file.read_text()
-        text = set_hash_in_block(text, "fetchNpmDeps", "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
+        text = set_hash_in_block(
+            text, "fetchNpmDeps", "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+        )
         pkg_file.write_text(text)
         real = fake_then_build_hash(name)
         text = pkg_file.read_text()

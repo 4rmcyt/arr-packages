@@ -2,7 +2,6 @@
   jellyfin-web,
   fetchFromGitHub,
   fetchNpmDeps,
-  lib,
 }:
 jellyfin-web.overrideAttrs (_old: rec {
   # Must always match packages/jellyfin's version exactly.

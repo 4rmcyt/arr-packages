@@ -26,7 +26,7 @@
     formatter.${system} = treefmtEval.config.build.wrapper;
     checks.${system}.formatting = treefmtEval.config.build.check self;
 
-    overlays.default = final: prev: {
+    overlays.default = _final: prev: {
       inherit (self.packages.${prev.system}) sonarr radarr prowlarr bazarr jellyfin jellyfin-web;
     };
   };

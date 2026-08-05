@@ -1,5 +1,4 @@
 name: auto-update
-
 on:
   schedule:
     - cron: "0 6 * * *"
@@ -9,27 +8,22 @@ on:
         description: "Regenerate deps for the currently pinned version, without checking for a new release"
         type: boolean
         default: false
-
 permissions:
   contents: write
   actions: write
-
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
       - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
-
       - uses: cachix/cachix-action@02b16339eddcf6ea27126a830c7f1992855cae13 # v17
         with:
           name: arr-packages
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-
       - name: Bump every package to its latest upstream release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -44,7 +38,6 @@ jobs:
             fi
           done
           exit $failed
-
       - name: Commit and push if anything changed
         id: commit
         if: always()
@@ -59,7 +52,6 @@ jobs:
           else
             echo "nothing changed"
           fi
-
       # A push made with GITHUB_TOKEN doesn't trigger build.yml's `on: push`
       # (GitHub's anti-recursion rule) -- kick it off explicitly instead.
       - name: Trigger build workflow
