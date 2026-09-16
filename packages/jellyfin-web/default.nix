@@ -2,16 +2,8 @@
   jellyfin-web,
   fetchFromGitHub,
   fetchNpmDeps,
-  nodejs_24,
 }:
-(jellyfin-web.override {
-  # 12.0 raised the engines requirement to node>=24/npm>=11. `nodejs` is set
-  # from this same-named callPackage arg inside nixpkgs' jellyfin-web
-  # package.nix, so swapping the arg (not overrideAttrs, which can't reach
-  # buildNpmPackage's already-resolved nativeBuildInputs) is what actually
-  # changes the node used to build it.
-  nodejs_22 = nodejs_24;
-}).overrideAttrs (_old: rec {
+jellyfin-web.overrideAttrs (_old: rec {
   # Must always match packages/jellyfin's version exactly.
   version = "12.0";
 
