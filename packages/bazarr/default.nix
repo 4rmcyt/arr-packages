@@ -1,5 +1,4 @@
 {
-  lib,
   bazarr,
   fetchFromGitHub,
   fetchNpmDeps,
@@ -20,6 +19,6 @@ bazarr.overrideAttrs (_old: rec {
     name = "bazarr-${version}-npm-deps";
     inherit src;
     sourceRoot = "${src.name}/frontend";
-    hash = lib.fakeHash;
+    hash = "sha256-82hLGQBuymU7DhDn+aYQIay1cVR+d4E3nU+ZNhJ8xJ0=";
   };
 })

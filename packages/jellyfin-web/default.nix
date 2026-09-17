@@ -1,5 +1,4 @@
 {
-  lib,
   jellyfin-web,
   fetchFromGitHub,
   fetchNpmDeps,
@@ -20,6 +19,6 @@ jellyfin-web.overrideAttrs (_old: rec {
   # instead, same as packages/bazarr.
   npmDeps = fetchNpmDeps {
     inherit src;
-    hash = lib.fakeHash;
+    hash = "sha256-xsDGITy7W/CTER/c3qa3aD0L297s5OflePPgfRIV+Y8=";
   };
 })

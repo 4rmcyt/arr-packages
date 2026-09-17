@@ -39,7 +39,7 @@ in
 
     yarnOfflineCache = fetchYarnDeps {
       yarnLock = "${src}/yarn.lock";
-      hash = lib.fakeHash;
+      hash = "sha256-irAOf0hbhiCet1Xid4oms5bIgtujJlvzNIlxQZU4LwQ=";
     };
 
     ffprobe = lib.getExe' servarr-ffmpeg "ffprobe";

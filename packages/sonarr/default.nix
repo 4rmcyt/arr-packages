@@ -36,8 +36,6 @@ in
 
     postPatch = ''
       mv src/NuGet.Config NuGet.Config
-      substituteInPlace src/NzbDrone.Host/Startup.cs \
-        --replace-fail 'IPNetwork' 'Microsoft.AspNetCore.HttpOverrides.IPNetwork'
       # global.json pins an SDK version older than what's installed; let
       # dotnet fall back to whatever SDK we actually have.
       rm -f global.json
@@ -83,7 +81,7 @@ in
 
     yarnOfflineCache = fetchYarnDeps {
       yarnLock = "${src}/yarn.lock";
-      hash = lib.fakeHash;
+      hash = "sha256-ejAf8/zWX9TbC645vbpyLwa6mrnitU7ByImrJ1d/uX0=";
     };
 
     ffprobe = lib.getExe' servarr-ffmpeg "ffprobe";

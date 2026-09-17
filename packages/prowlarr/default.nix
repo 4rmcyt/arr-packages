@@ -38,7 +38,7 @@ in
 
     yarnOfflineCache = fetchYarnDeps {
       yarnLock = "${src}/yarn.lock";
-      hash = lib.fakeHash;
+      hash = "sha256-3V1ywO0eq35+x9I2GyylonEpnsJ80wT7bKLO9FiHchE=";
     };
 
     postConfigure = ''
