@@ -15,13 +15,13 @@
   # Bump this to the upstream tag you want to track, then run:
   #   nix build .#packages.x86_64-linux.radarr.fetch-deps
   #   ./result ./packages/radarr/deps.json
-  version = "6.3.0.10514";
+  version = "6.4.4.10685";
 
   src = fetchFromGitHub {
     owner = "Radarr";
     repo = "Radarr";
     tag = "v${version}";
-    hash = "sha256-1CAcsqhdAH2dOcOMVyIlaqEmCKDwXNUJf3SuVuJEZ7E=";
+    hash = "sha256-c7toD4EHn1EJl5l/wvKTh0HGWyIg5BW2SkV4nepvg3I=";
   };
 
   rid = dotnetCorePackages.systemToDotnetRid stdenvNoCC.hostPlatform.system;
@@ -39,7 +39,7 @@ in
 
     yarnOfflineCache = fetchYarnDeps {
       yarnLock = "${src}/yarn.lock";
-      hash = "sha256-FrYvTYSxUDP68a4n0isEaHxRNFL25N3LNQJVFBOLdyE=";
+      hash = lib.fakeHash;
     };
 
     ffprobe = lib.getExe' servarr-ffmpeg "ffprobe";

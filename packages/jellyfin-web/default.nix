@@ -1,17 +1,18 @@
 {
+  lib,
   jellyfin-web,
   fetchFromGitHub,
   fetchNpmDeps,
 }:
 jellyfin-web.overrideAttrs (_old: rec {
   # Must always match packages/jellyfin's version exactly.
-  version = "12.0";
+  version = "12.1";
 
   src = fetchFromGitHub {
     owner = "jellyfin";
     repo = "jellyfin-web";
     tag = "v${version}";
-    hash = "sha256-LwFjfG+OLgQDP7GqD4/wQhmym4N5QWe/qITQN+hxHh8=";
+    hash = "sha256-WR62ZkhLVn0+cbY0FEDvKcmCGb78tIiK2wIc5Y6rUn8=";
   };
 
   # `npmDepsHash` only takes effect inside nixpkgs' own buildNpmPackage call --
@@ -19,6 +20,6 @@ jellyfin-web.overrideAttrs (_old: rec {
   # instead, same as packages/bazarr.
   npmDeps = fetchNpmDeps {
     inherit src;
-    hash = "sha256-1s9PWqakzZMiZokOqnKfwaj9s7yWm6e/xh4R5OmTNMc=";
+    hash = lib.fakeHash;
   };
 })

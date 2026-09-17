@@ -15,13 +15,13 @@
   # Bump this to the upstream tag you want to track, then run:
   #   nix build .#packages.x86_64-linux.sonarr.fetch-deps
   #   ./result ./packages/sonarr/deps.json
-  version = "4.0.19.2979";
+  version = "4.0.20.3014";
 
   src = fetchFromGitHub {
     owner = "Sonarr";
     repo = "Sonarr";
     tag = "v${version}";
-    hash = "sha256-hYO7I1zaBSYgobd8GvIx/sWyRzflXMFjnnPB21pm4wQ=";
+    hash = "sha256-XEGGcrMAZd/9ta02QlMQD2nwogJSgNCBswlYwyMTRzo=";
   };
 
   rid = dotnetCorePackages.systemToDotnetRid stdenvNoCC.hostPlatform.system;
@@ -83,7 +83,7 @@ in
 
     yarnOfflineCache = fetchYarnDeps {
       yarnLock = "${src}/yarn.lock";
-      hash = "sha256-ejAf8/zWX9TbC645vbpyLwa6mrnitU7ByImrJ1d/uX0=";
+      hash = lib.fakeHash;
     };
 
     ffprobe = lib.getExe' servarr-ffmpeg "ffprobe";

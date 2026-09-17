@@ -14,13 +14,13 @@
   # the upstream tag you want to track, then run:
   #   nix build .#packages.x86_64-linux.jellyfin.fetch-deps
   #   ./result ./packages/jellyfin/nuget-deps.json
-  version = "12.0";
+  version = "12.1";
 
   src = fetchFromGitHub {
     owner = "jellyfin";
     repo = "jellyfin";
     tag = "v${version}";
-    hash = "sha256-z40crHV4vH27vDQBFcM58tQ5JW8wtIW3w981Rpp5h1E=";
+    hash = "sha256-WB/miD5uwoCY9DcTRRtxxOu9G+jojNGp5FZ0HHDqhys=";
   };
 in
   buildDotnetModule {
